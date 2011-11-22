@@ -1,0 +1,38 @@
+This file contains message digests of all files listed in MANIFEST,
+signed via the Module::Signature module, version 0.68.
+
+To verify the content in this distribution, first make sure you have
+Module::Signature installed, then type:
+
+    % cpansign -v
+
+It will check each file's integrity, as well as the signature's
+validity.  If "==> Signature verified OK! <==" is not displayed,
+the distribution may already have been compromised, and you should
+not run its Makefile.PL or Build.PL.
+
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+SHA1 d85015e316352bf4095a2d28405f68488f138542 Build.PL
+SHA1 11ac1e3b2b7475b89ba6587960f2570f43a309ac Changes
+SHA1 4063ceda222508e99d247dd90901159b37193c5e INSTALL
+SHA1 4dde25b9538eaab37558ffc59119b7e8e26e47af LICENSE
+SHA1 14df0cf75f02f0b792a49daa5cbe72695745eb33 MANIFEST
+SHA1 578f728f05b169dce531f65a6bd7edd1a3202458 META.json
+SHA1 fdb29ebbb322a7dc64f927e682df0ca2a1ee639d META.yml
+SHA1 3076f9e06f9a71d26ea4ed278692449673ef7a0c README
+SHA1 d8982ddb0989bfb978a02feac6bb9907b0953274 dist.ini
+SHA1 c805e7191b15507087c59e69b4019592e959fb34 lib/autodie/variables.pm
+SHA1 c9a30dee165b65df6a323938dd5744635ef186f6 lib/autodie/variables.xs
+SHA1 14863e63ebceb712fe78ec64e52543a2e7909716 t/00-compile.t
+SHA1 6ea81e3865946a14536f97ccc65fee4b218c8148 t/release-kwalitee.t
+SHA1 9433c240fe590bc404ab68ff63984df763e347ed t/release-pod-coverage.t
+SHA1 b30cbdfaf935017c4568c0c91b242438cb87786e t/release-pod-syntax.t
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.11 (GNU/Linux)
+
+iEYEARECAAYFAk7MK80ACgkQTd+EWiaICwqRoACgtZp6+uflkDULGJiD3AL7MESG
+dLwAn3lRfEmwWwAWoe9yfQiDARIhMARZ
+=Cp2Q
+-----END PGP SIGNATURE-----

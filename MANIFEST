@@ -1,0 +1,16 @@
+Build.PL
+Changes
+INSTALL
+LICENSE
+MANIFEST
+META.json
+META.yml
+README
+SIGNATURE
+dist.ini
+lib/autodie/variables.pm
+lib/autodie/variables.xs
+t/00-compile.t
+t/release-kwalitee.t
+t/release-pod-coverage.t
+t/release-pod-syntax.t
