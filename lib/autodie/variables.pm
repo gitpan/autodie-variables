@@ -1,7 +1,8 @@
 package autodie::variables;
 {
-  $autodie::variables::VERSION = '0.001';
+  $autodie::variables::VERSION = '0.002';
 }
+use 5.010;
 use strict;
 use warnings;
 
@@ -37,7 +38,7 @@ autodie::variables - Safe user and group ID variables
 
 =head1 VERSION
 
-version 0.001
+version 0.002
 
 =head1 SYNOPSIS
 

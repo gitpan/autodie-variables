@@ -3,6 +3,15 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef CopHINTHASH_get
+#define CopHINTHASH_get(c) ((c)->cop_hints_hash)
+#endif
+
+#ifndef cophh_fetch_pvs
+#define cophh_fetch_pvs(cophh, key, flags) Perl_refcounted_he_fetch(aTHX_ cophh, NULL, STR_WITH_LEN(key), 0, flags)
+#endif
+
+
 int autodie_variables(pTHX) {
 	SV* val = cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "autodie_variables", 0);
 	if (val != &PL_sv_placeholder)
