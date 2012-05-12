@@ -6,7 +6,6 @@ MANIFEST
 META.json
 META.yml
 README
-SIGNATURE
 dist.ini
 lib/autodie/variables.pm
 lib/autodie/variables.xs

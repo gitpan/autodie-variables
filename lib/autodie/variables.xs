@@ -11,15 +11,33 @@
 #define cophh_fetch_pvs(cophh, key, flags) Perl_refcounted_he_fetch(aTHX_ cophh, NULL, STR_WITH_LEN(key), 0, flags)
 #endif
 
+#if PERL_VERSION < 15 || PERL_VERSION == 15 && PERL_SUBVERSION < 8
+#define PL_delaymagic_uid PL_uid
+#define PL_delaymagic_euid PL_euid
+#define PL_delaymagic_gid PL_gid
+#define PL_delaymagic_egid PL_egid
+#endif
 
-int autodie_variables(pTHX) {
+#if defined(HAS_GETGROUPS) || defined(HAS_SETGROUPS)
+#  ifdef I_GRP
+#    include <grp.h>
+#  endif
+#endif
+
+#if defined(HAS_SETGROUPS)
+#  ifndef NGROUPS
+#    define NGROUPS 32
+#  endif
+#endif
+
+static int autodie_variables(pTHX) {
 	SV* val = cophh_fetch_pvs(CopHINTHASH_get(PL_curcop), "autodie_variables", 0);
 	if (val != &PL_sv_placeholder)
 		return SvIV(val);
 	return 0;
 }
 
-int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
+static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 	dVAR;
 	register const char *s;
 	I32 i;
@@ -27,102 +45,118 @@ int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 	MAGIC *tmg;
 	int ret = 0;
 
+#ifdef PERL_ARGS_ASSERT_MAGIC_SET
 	PERL_ARGS_ASSERT_MAGIC_SET;
+#endif
 
 	if (!autodie_variables(aTHX))
 		return Perl_magic_set(aTHX_ sv, mg);
 
 	switch (*mg->mg_ptr) {
 	case '<':
-		PL_uid = SvIV(sv);
+		{
+		const Uid_t new_uid = SvIV(sv);
 		if (PL_delaymagic) {
+			PL_delaymagic_uid = new_uid;
 			PL_delaymagic |= DM_RUID;
 			break;								/* don't do magic till later */
 		}
 #ifdef HAS_SETRESUID
-		ret = setresuid((Uid_t)PL_uid, (Uid_t)-1, (Uid_t)-1);
+		ret = setresuid((Uid_t)new_uid, (Uid_t)-1, (Uid_t)-1);
 #else
 #ifdef HAS_SETRUID
-		ret = setruid((Uid_t)PL_uid);
+		ret = setruid((Uid_t)new_uid);
 #else
 #ifdef HAS_SETREUID
-		ret = setreuid((Uid_t)PL_uid, (Uid_t)-1);
+		ret = setreuid((Uid_t)new_uid, (Uid_t)-1);
 #else
-		if (PL_uid == PL_euid) {				/* special case $< = $> */
+		if (new_uid == geteuid()) {				/* special case $< = $> */
 #ifdef PERL_DARWIN
 			/* workaround for Darwin's setuid peculiarity, cf [perl #24122] */
-			if (PL_uid != 0 && PerlProc_getuid() == 0)
+			if (new_uid != 0 && PerlProc_getuid() == 0)
 				(void)PerlProc_setuid(0);
 #endif
-			ret = PerlProc_setuid(PL_uid);
+			ret = PerlProc_setuid(new_uid);
 		} else {
-			PL_uid = PerlProc_getuid();
 			Perl_croak(aTHX_ "setruid() not implemented");
 		}
 #endif
 #endif
 #endif
-		PL_uid = PerlProc_getuid();
 		if (ret < 0)
 			Perl_croak(aTHX_ "setruid(%d) failed: %s", SvIV(sv), Strerror(errno));
+#ifdef PL_uid
+		PL_uid = PerlProc_getuid();
+#endif
 		break;
+		}
 	case '>':
-		PL_euid = SvIV(sv);
+		{
+		const Uid_t new_euid = SvIV(sv);
 		if (PL_delaymagic) {
+			PL_delaymagic_euid = new_euid;
 			PL_delaymagic |= DM_EUID;
 			break;								/* don't do magic till later */
 		}
 #ifdef HAS_SETRESUID
-		ret = setresuid((Uid_t)-1, (Uid_t)PL_euid, (Uid_t)-1);
+		ret = setresuid((Uid_t)-1, (Uid_t)new_euid, (Uid_t)-1);
 #else
 #ifdef HAS_SETEUID
-		ret = seteuid((Uid_t)PL_euid);
+		ret = seteuid((Uid_t)new_euid);
 #else
 #ifdef HAS_SETREUID
-		(void)setreuid((Uid_t)-1, (Uid_t)PL_euid);
+		(void)setreuid((Uid_t)-1, (Uid_t)new_euid);
 #else
-		if (PL_euid == PL_uid)				/* special case $> = $< */
-			ret = PerlProc_setuid(PL_euid);
+		if (new_euid == PerlProc_getuid())				/* special case $> = $< */
+			ret = PerlProc_setuid(new_euid);
 		else {
-			PL_euid = PerlProc_geteuid();
 			Perl_croak(aTHX_ "seteuid() not implemented");
 		}
 #endif
 #endif
 #endif
-		PL_euid = PerlProc_geteuid();
 		if (ret < 0)
 			Perl_croak(aTHX_ "seteuid(%d) failed: %s", SvIV(sv), Strerror(errno));
+#ifdef PL_euid
+		PL_euid = PerlProc_geteuid();
+#endif
 		break;
+		}
 	case '(':
-		PL_gid = SvIV(sv);
+		{
+		const Gid_t new_gid = SvIV(sv);
 		if (PL_delaymagic) {
+			PL_delaymagic_gid = new_gid;
 			PL_delaymagic |= DM_RGID;
 			break;								/* don't do magic till later */
 		}
 #ifdef HAS_SETRESGID
-		ret = setresgid((Gid_t)PL_gid, (Gid_t)-1, (Gid_t) -1);
+		ret = setresgid((Gid_t)new_gid, (Gid_t)-1, (Gid_t) -1);
 #else
 #ifdef HAS_SETRGID
-		ret = setrgid((Gid_t)PL_gid);
+		ret = setrgid((Gid_t)new_gid);
 #else
 #ifdef HAS_SETREGID
-		ret = setregid((Gid_t)PL_gid, (Gid_t)-1);
+		ret = setregid((Gid_t)new_gid, (Gid_t)-1);
 #else
-		if (PL_gid == PL_egid)						/* special case $( = $) */
-			ret = PerlProc_setgid(PL_gid);
+		if (new_gid == PerlProc_getegid())						/* special case $( = $) */
+			ret = PerlProc_setgid(new_gid);
 		else {
-			PL_gid = PerlProc_getgid();
 			Perl_croak(aTHX_ "setrgid() not implemented");
 		}
 #endif
 #endif
 #endif
-		PL_gid = PerlProc_getgid();
 		if (ret < 0)
 			Perl_croak(aTHX_ "setrgid(%d) failed: %s", SvIV(sv), Strerror(errno));
+#ifdef PL_gid
+		PL_gid = PerlProc_getgid();
+#endif
 		break;
+		}
 	case ')':
+		{
+		gid_t new_egid;
 #ifdef HAS_SETGROUPS
 		{
 			const char *p = SvPV_const(sv, len);
@@ -139,7 +173,7 @@ int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 
 			while (isSPACE(*p))
 				++p;
-			PL_egid = Atol(p);
+			new_egid = Atol(p);
 			for (i = 0; i < maxgrp; ++i) {
 				while (*p && !isSPACE(*p))
 					++p;
@@ -157,7 +191,6 @@ int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 			}
 			if (i) {
 				if (setgroups(i, gary) < 0) {
-					PL_egid = PerlProc_getegid();
 					Perl_croak(aTHX_ "setgroups(%s) failed: %s", additional, Strerror(errno));
 				}
 			}
@@ -165,33 +198,36 @@ int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 			Safefree(gary);
 		}
 #else  /* HAS_SETGROUPS */
-		PL_egid = SvIV(sv);
+		new_egid = SvIV(sv);
 #endif /* HAS_SETGROUPS */
 		if (PL_delaymagic) {
+			PL_delaymagic_egid = new_egid;
 			PL_delaymagic |= DM_EGID;
 			break;								/* don't do magic till later */
 		}
 #ifdef HAS_SETRESGID
-		ret = setresgid((Gid_t)-1, (Gid_t)PL_egid, (Gid_t)-1);
+		ret = setresgid((Gid_t)-1, (Gid_t)new_egid, (Gid_t)-1);
 #else
 #ifdef HAS_SETEGID
-		ret = setegid((Gid_t)PL_egid);
+		ret = setegid((Gid_t)new_egid);
 #else
 #ifdef HAS_SETREGID
-		ret = setregid((Gid_t)-1, (Gid_t)PL_egid);
+		ret = setregid((Gid_t)-1, (Gid_t)new_egid);
 #else
-		if (PL_egid == PL_gid)						/* special case $) = $( */
-			ret = PerlProc_setgid(PL_egid);
+		if (new_egid == PerlProc_getgid())						/* special case $) = $( */
+			ret = PerlProc_setgid(new_egid);
 		else {
-			PL_egid = PerlProc_getegid();
 			Perl_croak(aTHX_ "setegid() not implemented");
 		}
 #endif
 #endif
 #endif
-		PL_egid = PerlProc_getegid();
 		if (ret < 0)
 			Perl_croak(aTHX_ "setegid(%d) failed: %s", SvIV(sv), Strerror(errno));
+#ifdef PL_egid
+		PL_egid = PerlProc_getegid();
+#endif
+		}
 		break;
 		default:
 			return Perl_magic_set(aTHX_ sv, mg);

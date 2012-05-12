@@ -1,5 +1,10 @@
 Revision history for autodie-variables
 
+0.003     2012-05-12 14:33:26 Europe/Amsterdam
+          Fixed for new cache-less behavior on 5.15.8+
+          Made sure NGROUPS is defined (for Solaris)
+          Fix compilation error on 5.10
+
 0.002     2011-12-21 16:10:19 Europe/Amsterdam
           Made autodie::variables work on perl 5.10-5.12 too (previously only worked on 5.14)
 
