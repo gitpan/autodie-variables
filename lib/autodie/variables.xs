@@ -84,7 +84,7 @@ static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 #endif
 #endif
 		if (ret < 0)
-			Perl_croak(aTHX_ "setruid(%d) failed: %s", SvIV(sv), Strerror(errno));
+			Perl_croak(aTHX_ "setruid(%d) failed: %s", new_uid, Strerror(errno));
 #ifdef PL_uid
 		PL_uid = PerlProc_getuid();
 #endif
@@ -116,7 +116,7 @@ static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 #endif
 #endif
 		if (ret < 0)
-			Perl_croak(aTHX_ "seteuid(%d) failed: %s", SvIV(sv), Strerror(errno));
+			Perl_croak(aTHX_ "seteuid(%d) failed: %s", new_euid, Strerror(errno));
 #ifdef PL_euid
 		PL_euid = PerlProc_geteuid();
 #endif
@@ -148,7 +148,7 @@ static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 #endif
 #endif
 		if (ret < 0)
-			Perl_croak(aTHX_ "setrgid(%d) failed: %s", SvIV(sv), Strerror(errno));
+			Perl_croak(aTHX_ "setrgid(%d) failed: %s", new_gid, Strerror(errno));
 #ifdef PL_gid
 		PL_gid = PerlProc_getgid();
 #endif
@@ -223,7 +223,7 @@ static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 #endif
 #endif
 		if (ret < 0)
-			Perl_croak(aTHX_ "setegid(%d) failed: %s", SvIV(sv), Strerror(errno));
+			Perl_croak(aTHX_ "setegid(%d) failed: %s", new_egid, Strerror(errno));
 #ifdef PL_egid
 		PL_egid = PerlProc_getegid();
 #endif

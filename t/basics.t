@@ -7,6 +7,9 @@ use autodie::variables;
 use Test::More;
 use Test::Exception;
 
+use if $^O ne 'MSWin32', POSIX => qw/setlocale LC_ALL/;
+setlocale(&LC_ALL, 'C') if $^O ne 'MSWin32';
+
 if ($> == 0) {
 	diag("Running tests as root, dropping privileges first");
 	my $id = $ENV{TEST_USER_ID} || 1000;
