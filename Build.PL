@@ -10,6 +10,7 @@ my %module_build_args = (
     "File::Find" => 0,
     "File::Temp" => 0,
     "Module::Build" => "0.3601",
+    "POSIX" => 0,
     "Test::Exception" => 0,
     "Test::More" => 0,
     "if" => 0
@@ -22,7 +23,7 @@ my %module_build_args = (
     "Leon Timmermans <leont\@cpan.org>"
   ],
   "dist_name" => "autodie-variables",
-  "dist_version" => "0.004",
+  "dist_version" => "0.005",
   "license" => "perl",
   "module_name" => "autodie::variables",
   "recommends" => {},

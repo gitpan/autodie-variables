@@ -1,5 +1,8 @@
 Revision history for autodie-variables
 
+0.005     2012-12-27 00:36:31 Europe/Amsterdam
+          Deal with Perl_magic_len deprecation
+
 0.004     2012-05-15 15:25:07 Europe/Amsterdam
           Fix errno issues on some builds
           Set locale "C" in tests

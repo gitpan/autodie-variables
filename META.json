@@ -4,7 +4,7 @@
       "Leon Timmermans <leont@cpan.org>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300006, CPAN::Meta::Converter version 2.120920",
+   "generated_by" : "Dist::Zilla version 4.300021, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -36,6 +36,7 @@
          "requires" : {
             "File::Find" : "0",
             "File::Temp" : "0",
+            "POSIX" : "0",
             "Test::Exception" : "0",
             "Test::More" : "0",
             "if" : "0"
@@ -54,6 +55,6 @@
          "web" : "http://github.com/Leont/autodie-variables"
       }
    },
-   "version" : "0.004"
+   "version" : "0.005"
 }
 

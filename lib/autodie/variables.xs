@@ -234,7 +234,7 @@ static int new_magic_set(pTHX_ SV *sv, MAGIC *mg) {
 	}
 }
 
-const MGVTBL new_vtable = { Perl_magic_get, new_magic_set, Perl_magic_len };
+const MGVTBL new_vtable = { Perl_magic_get, new_magic_set };
 
 MODULE = autodie::variables                PACKAGE = autodie::variables
 
